@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <!-- Header -->
+    <header class="bg-gray-800 shadow-lg py-4">
+        <div class="container mx-auto text-center">
+            <h1 class="text-3xl font-bold text-yellow-400">🎬 Movie Recommendation System</h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto my-10 text-center">
+        <h2 class="text-xl font-semibold text-gray-300 mb-4">Find movies similar to your favorites!</h2>
+
+        <div class="max-w-lg mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+            <input type="text" id="movieInput" placeholder="Enter a movie title..."
+                class="w-full p-3 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-yellow-400">
+            <button onclick="getRecommendations()"
+                class="mt-4 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 px-4 rounded">
+                Get Recommendations
+            </button>
+        </div>
+
+        <!-- Recommendations Section -->
+        <div id="result" class="mt-8"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 py-4 mt-10">
+        <div class="container mx-auto text-center">
+            <p class="text-gray-400">© 2025 Movie Recommender | Built with ❤️ and Flask</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Fetching Recommendations -->
+    <script>
+        async function getRecommendations() {
+            const movieTitle = document.getElementById("movieInput").value.trim();
+            if (!movieTitle) {
+                document.getElementById("result").innerHTML = "<p class='text-red-400 font-semibold'>Please enter a movie title!</p>";
+                return;
+            }
+
+            const response = await fetch("/recommend", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ movie: movieTitle })
+            });
+
+            const data = await response.json();
+            if (data.recommendations.length === 0) {
+                document.getElementById("result").innerHTML = "<p class='text-red-400 font-semibold'>No recommendations found. Try another movie.</p>";
+                return;
+            }
+
+            document.getElementById("result").innerHTML = `
+                <h3 class="text-2xl font-bold text-yellow-400">Recommended Movies:</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                    ${data.recommendations.map(movie => `
+                        <div class="bg-gray-700 p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300">
+                            <p class="text-lg font-semibold text-white">${movie}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+    </script>
+
+</body>
+</html>
